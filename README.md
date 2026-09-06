@@ -2,7 +2,6 @@
 
 ## DANAR TAN 
 ## ORLANDO DYLAN TAN 
-## JOSHUA MIGUEL 
 
 current highest accuracy: 0.93025
 
