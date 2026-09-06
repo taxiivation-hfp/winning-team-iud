@@ -56,6 +56,6 @@ def features(df: pd.DataFrame, state_fill: np.ndarray | None = None):
     logS = np.where(np.isfinite(logS), logS, state_fill)
 
     X = np.hstack(
-        [pattern, logscale, logconc]
+        [pattern, logscale, logconc] # tested, current highest accuracy. no logS, no sensor-centered logS.
     )
     return X, state_fill
