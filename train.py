@@ -51,7 +51,7 @@ def rounds_schedule(n: int | None) -> tuple[float, ...]:
 # Two members that fail differently: LDA is drift-fragile but well calibrated
 # within a batch, LR is the robust one. Averaging beats either alone.
 def lda():
-    return LinearDiscriminantAnalysis(solver="lsqr", shrinkage=0.001) # SHRINKAGE 0.001 WINS
+    return LinearDiscriminantAnalysis(solver="lsqr", shrinkage=0.0002) # SHRINKAGE 0.0002 WINS
 
 
 def lr():
