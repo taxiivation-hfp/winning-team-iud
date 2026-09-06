@@ -31,8 +31,7 @@ PROXY_BATCHES = (9, 7)
 
 # EDIT THIS. One entry per self-training round: the fraction of each class's
 # predictions to trust that round. Length = number of rounds.
-ROUNDS = tuple(np.linspace(0.001, 0.999, 100)) # TRY THIS
-# ROUNDS = tuple(np.linspace(0.0025, 0.975, 40)) # TRY THIS
+ROUNDS = (0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9)
 # ROUNDS = (0.3, 0.5, 0.7)
 
 # Bagging: how many bootstrap members and what share of source rows each sees.
@@ -114,13 +113,10 @@ def run(df_source, df_target, method="selftrain", rounds=()):
         clf = lr().fit(Xs, ys)
         return clf.predict_proba(Xt), clf.classes_
 
-    rng = np.random.default_rng(0)
-    Ps = []
-    for _ in range(N_BAG):
-        idx = rng.choice(len(Xs), size=int(BAG_FRAC * len(Xs)), replace=False)
-        P, classes = self_train(lda, Xs[idx], ys[idx], Xt, rounds)
-        Ps.append(P)
-    return np.mean(Ps, axis=0), classes  # LDA only - LR member just makes it worse (tested)
+    Pl, classes = self_train(lda, Xs, ys, Xt, rounds)
+    # Pr, _ = self_train(lr, Xs, ys, Xt, rounds)
+    # return (Pl + Pr) / 2, classes
+    return Pl, classes  # LR jus makes it worse
 
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__)
