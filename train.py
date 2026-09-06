@@ -105,7 +105,7 @@ def run(df_source, df_target, method="selftrain", rounds=()):
 
     Pl, classes = self_train(lda, Xs, ys, Xt, rounds)
     Pr, _ = self_train(lr, Xs, ys, Xt, rounds)
-    return (Pl + Pr) / 2, classes
+    return Pl, classes
 
 
 def main(argv=None) -> int:
