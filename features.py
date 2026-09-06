@@ -43,6 +43,7 @@ def features(df: pd.DataFrame, state_fill: np.ndarray | None = None):
 
     l1 = np.abs(cube).sum(axis=1, keepdims=True) + 1e-6  # L1 over the 16 sensors
     pattern = (cube / l1).reshape(len(df), -1)
+    ranks = cube.argsort(axis=1).argsort(axis=1).reshape(len(df), -1)/(N_SENSORS-1) 
 
     logscale = np.log1p(np.abs(dr)).mean(axis=1, keepdims=True)
     logconc = np.log(df["concentration"].to_numpy(float))[:, None]
@@ -56,6 +57,6 @@ def features(df: pd.DataFrame, state_fill: np.ndarray | None = None):
     logS = np.where(np.isfinite(logS), logS, state_fill)
 
     X = np.hstack(
-        [pattern, logscale, logconc] # tested, current highest accuracy. no logS, no sensor-centered logS.
+        [pattern, ranks, logscale, logconc] # tested, current highest accuracy. no logS, no sensor-centered logS.
     )
     return X, state_fill
