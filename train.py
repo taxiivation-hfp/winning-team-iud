@@ -18,7 +18,7 @@ from __future__ import annotations
 import argparse
 
 import numpy as np
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, ledoit_wolf
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 
@@ -31,7 +31,8 @@ PROXY_BATCHES = (9, 7)
 
 # EDIT THIS. One entry per self-training round: the fraction of each class's
 # predictions to trust that round. Length = number of rounds.
-ROUNDS = (0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8)
+ROUNDS = (0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9)
+# ROUNDS = (0.3, 0.5, 0.7)
 
 
 def rounds_schedule(n: int | None) -> tuple[float, ...]:
@@ -50,7 +51,7 @@ def rounds_schedule(n: int | None) -> tuple[float, ...]:
 # Two members that fail differently: LDA is drift-fragile but well calibrated
 # within a batch, LR is the robust one. Averaging beats either alone.
 def lda():
-    return LinearDiscriminantAnalysis(solver="lsqr", shrinkage="auto")
+    return LinearDiscriminantAnalysis(solver="lsqr", shrinkage=0.001) # SHRINKAGE 0.001 WINS
 
 
 def lr():
@@ -105,9 +106,9 @@ def run(df_source, df_target, method="selftrain", rounds=()):
         return clf.predict_proba(Xt), clf.classes_
 
     Pl, classes = self_train(lda, Xs, ys, Xt, rounds)
-    Pr, _ = self_train(lr, Xs, ys, Xt, rounds)
-    return Pl, classes
-
+    # Pr, _ = self_train(lr, Xs, ys, Xt, rounds)
+    # return (Pl + Pr) / 2, classes
+    return Pl, classes  # LR jus makes it worse
 
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__)
@@ -119,7 +120,11 @@ def main(argv=None) -> int:
 
     rounds = rounds_schedule(args.rounds)
     train = data.load_train()
-    print(f"method={args.method}  rounds={len(rounds)} {tuple(round(f, 2) for f in rounds)}\n")
+    # from sklearn.covariance import ledoit_wolf
+    # Xs, _, ys = prepare(train, data.load_test())
+    # means = {c: Xs[ys == c].mean(0) for c in np.unique(ys)}
+    # print("ledoit-wolf shrinkage:", ledoit_wolf(Xs - np.array([means[c] for c in ys]))[1])
+    # print(f"method={args.method}  rounds={len(rounds)} {tuple(round(f, 2) for f in rounds)}\n")
 
     for k in PROXY_BATCHES:
         source = train[train[data.BATCH_COL] != k]
