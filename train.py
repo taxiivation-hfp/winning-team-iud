@@ -25,12 +25,13 @@ from sklearn.preprocessing import StandardScaler
 import data
 import validate
 from features import features
+from sklearn.preprocessing import StandardScaler, QuantileTransformer
 
 PROXY_BATCHES = (9, 7)
 
 # EDIT THIS. One entry per self-training round: the fraction of each class's
 # predictions to trust that round. Length = number of rounds.
-ROUNDS = (0.3, 0.5, 0.7)
+ROUNDS = (0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8)
 
 
 def rounds_schedule(n: int | None) -> tuple[float, ...]:
